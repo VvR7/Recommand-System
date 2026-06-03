@@ -1,0 +1,12 @@
+*.log
+*.pth
+__pycache__/
+*.pyc
+*.csv
+*.svg
+*.png
+*.inter
+*.bak
+*.item
+*.pkl
+*.user

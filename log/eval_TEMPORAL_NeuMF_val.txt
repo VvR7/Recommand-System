@@ -1,0 +1,14 @@
+NeuMF TEMPORAL (val, history 80% → eval 20%)
+==================================================
+Eval users: 282
+History items: 426,965
+Eval positives: 102,798
+GAUC: 0.6526886196016577
+Recall@5: 0.12418758756590517
+NDCG@5: 0.07219849672887357
+Recall@10: 0.2333236084721443
+NDCG@10: 0.10731373087883463
+Recall@20: 0.4075001856768366
+NDCG@20: 0.15109759686611526
+eval_users: 282
+user_stats: {'no_history': 0, 'no_pos': 0, 'no_neg': 0, 'valid': 282}

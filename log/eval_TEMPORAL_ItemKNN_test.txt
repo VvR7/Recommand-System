@@ -1,0 +1,14 @@
+ItemKNN TEMPORAL (test, history 80% → eval 20%)
+==================================================
+Eval users: 1129
+History items: 1,679,459
+Eval positives: 404,153
+GAUC: 0.5525391513301326
+Recall@5: 0.14133695915686353
+NDCG@5: 0.08591525267075358
+Recall@10: 0.23164001424751798
+NDCG@10: 0.11492127268087911
+Recall@20: 0.34321840266074116
+NDCG@20: 0.14303542470158756
+eval_users: 1129
+user_stats: {'no_history': 0, 'no_pos': 0, 'no_neg': 0, 'valid': 1129}

@@ -1,0 +1,7 @@
+BERT4Rec on KuaiRec — Training Complete
+==================================================
+Completed: 2026-05-30 20:22:02
+Total time: 11.50h (690.1min)
+Best valid GAUC: 0.914601
+Best valid result: {'gauc': 0.914601}
+Test GAUC (big_matrix): {'gauc': 0.91328}

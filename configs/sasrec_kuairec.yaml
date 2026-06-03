@@ -1,0 +1,81 @@
+# =============================================================================
+# SASRec (Self-Attentive Sequential Recommendation) on KuaiRec — RecBole Config
+# =============================================================================
+# SASRec = unidirectional (causal) Transformer for next-item prediction.
+# Unlike BERT4Rec's bidirectional attention + Cloze masking, SASRec uses
+# left-to-right causal attention and trains on the last-position item.
+#
+# VRAM: ~4-6 GB (with AMP, batch_size=256, max_len=200)
+# Hardware: local 8GB GPU should work; reduce batch_size if OOM
+
+# ── Dataset ────────────────────────────────────────────────────────────
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: video_id
+TIME_FIELD: timestamp
+LABEL_FIELD: ~                      # Not used; SASRec uses sequence target
+
+load_col:
+  inter: [user_id, video_id, timestamp]
+
+# Sequential recommendation settings (aligned with BERT4Rec)
+MAX_ITEM_LIST_LENGTH: 200
+ITEM_LIST_LENGTH_FIELD: item_length
+LIST_SUFFIX: _list
+POSITION_FIELD: position_id
+
+# ── SASRec Model ────────────────────────────────────────────────────────
+# Aligned with BERT4Rec: same hidden_size, n_layers, n_heads for fair comparison
+n_layers: 2
+n_heads: 4
+hidden_size: 256
+inner_size: 1024                    # 4× hidden_size (standard Transformer)
+hidden_dropout_prob: 0.5
+attn_dropout_prob: 0.5
+hidden_act: 'gelu'
+layer_norm_eps: 1e-12
+initializer_range: 0.02
+loss_type: 'BPR'                     # Pairwise ranking loss (more efficient than CE)
+
+# ── Training ───────────────────────────────────────────────────────────
+epochs: 100
+train_batch_size: 256                # Conservative for 8GB VRAM
+eval_batch_size: 512
+learner: adam
+learning_rate: 0.001
+weight_decay: 0.0
+eval_step: 1
+stopping_step: 20
+clip_grad_norm: ~
+enable_amp: True                     # Mixed precision for VRAM efficiency
+enable_scaler: True
+train_neg_sample_args:
+  distribution: uniform
+  sample_num: 1                      # 1 negative per positive for BPR loss
+
+# ── Evaluation ─────────────────────────────────────────────────────────
+# Same setup as BERT4Rec: full mode + GAUC for checkpoint selection
+eval_args:
+  split: {'RS': [0.8, 0.1, 0.1]}
+  group_by: user
+  order: 'TO'
+  mode: full
+
+metrics: ['GAUC']
+topk: [10]
+valid_metric: GAUC
+valid_metric_bigger: True
+metric_decimal_place: 6
+
+# ── Environment ────────────────────────────────────────────────────────
+gpu_id: '0'
+use_gpu: True
+seed: 2020
+reproducibility: True
+state: INFO
+show_progress: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+log_wandb: False
+
+save_dataset: True
+dataset_save_path: 'dataset/kuairec/saved/'

@@ -1,0 +1,58 @@
+# =============================================================================
+# ItemKNN (Item-based Collaborative Filtering) on KuaiRec — RecBole Config
+# =============================================================================
+# ItemKNN computes item-item similarity from co-occurrence, no gradient training.
+# VRAM: <1 GB (CPU-based similarity computation, minimal GPU for eval)
+# Hardware: runs on local 8GB GPU or CPU-only
+
+# ── Dataset ────────────────────────────────────────────────────────────
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: video_id
+TIME_FIELD: timestamp
+LABEL_FIELD: ~
+
+load_col:
+  inter: [user_id, video_id, timestamp]
+
+# ── ItemKNN Model ──────────────────────────────────────────────────────
+k: 80                                # Top-K similar items
+knn_method: item                     # item-based CF (generalizes to new users)
+shrink: 0.0                          # Shrinkage for similarity
+
+# ── Training ───────────────────────────────────────────────────────────
+# ItemKNN has no trainable params — RecBole computes similarity in __init__
+epochs: 1
+train_batch_size: 2048
+eval_batch_size: 2048
+learner: adam
+learning_rate: 0.001
+eval_step: 1
+stopping_step: 1
+
+# ── Evaluation ─────────────────────────────────────────────────────────
+# Internal eval on big_matrix split; cross-user eval via evaluate_cf.py
+eval_args:
+  split: {'RS': [0.8, 0.1, 0.1]}
+  group_by: user
+  order: 'TO'
+  mode: full
+
+metrics: ['GAUC', 'Recall', 'NDCG']
+topk: [5, 10, 20]
+valid_metric: GAUC
+valid_metric_bigger: True
+metric_decimal_place: 6
+
+# ── Environment ────────────────────────────────────────────────────────
+gpu_id: '0'
+use_gpu: True
+seed: 2020
+reproducibility: True
+state: INFO
+show_progress: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+log_wandb: False
+
+save_dataset: True
+dataset_save_path: 'dataset/kuairec/saved/'

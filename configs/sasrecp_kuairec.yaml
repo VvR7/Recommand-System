@@ -1,0 +1,101 @@
+# =============================================================================
+# SASRecP (= SASRecF + RoPE + TimeBias + ContrastiveLoss) on KuaiRec
+# =============================================================================
+# Three plug-and-play innovations, each gated by a boolean flag for ablation:
+#   use_rope           — Rotary Position Embedding (replace absolute PE)
+#   use_time_bias       — Time-interval attention bias from real timestamps
+#   use_contra_loss     — Feature-aware contrastive auxiliary loss (InfoNCE)
+#
+# Baseline: set all three to False = SASRecF.
+# Full model: all three True.
+#
+# VRAM: ~8-10 GB (contrastive loss adds negligible overhead)
+# CPU RAM: >16 GB for SequentialDataset (server required!)
+
+# ── Dataset ────────────────────────────────────────────────────────────
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: video_id
+TIME_FIELD: timestamp
+LABEL_FIELD: ~
+
+load_col:
+  inter: [user_id, video_id, timestamp]
+  item: [video_id, first_level_category_id, second_level_category_id,
+         third_level_category_id]
+
+MAX_ITEM_LIST_LENGTH: 200
+ITEM_LIST_LENGTH_FIELD: item_length
+LIST_SUFFIX: _list
+POSITION_FIELD: position_id
+
+# ── SASRecP Model ─────────────────────────────────────────────────────
+n_layers: 2
+n_heads: 4
+hidden_size: 256
+inner_size: 1024
+hidden_dropout_prob: 0.5
+attn_dropout_prob: 0.5
+hidden_act: 'gelu'
+layer_norm_eps: 1e-12
+initializer_range: 0.02
+loss_type: 'BPR'
+
+# Feature injection (same as SASRecF)
+selected_features: [first_level_category_id, second_level_category_id,
+                    third_level_category_id]
+pooling_mode: mean
+
+# ── Innovations (ablation: toggle each flag) ────────────────────────
+use_rope: True
+use_time_bias: True
+time_bias_method: 'log'                 # 'log' or 'linear'
+
+use_contra_loss: True
+contra_lambda: 0.1                      # contrastive loss weight
+contra_temperature: 0.07                # softmax temperature
+contra_weighting: 'hierarchical'        # 'binary' or 'hierarchical'
+contra_category_field: 'second_level_category_id'
+contra_L1_field: 'first_level_category_id'
+contra_L3_field: 'third_level_category_id'
+
+# ── Training ───────────────────────────────────────────────────────────
+epochs: 100
+train_batch_size: 128
+eval_batch_size: 256
+learner: adam
+learning_rate: 0.001
+weight_decay: 0.0
+eval_step: 1
+stopping_step: 20
+enable_amp: True
+enable_scaler: True
+train_neg_sample_args:
+  distribution: uniform
+  sample_num: 1
+
+# ── Evaluation ─────────────────────────────────────────────────────────
+eval_args:
+  split: {'RS': [0.8, 0.1, 0.1]}
+  group_by: user
+  order: 'TO'
+  mode: full
+
+metrics: ['GAUC']
+topk: [10]
+valid_metric: GAUC
+valid_metric_bigger: True
+metric_decimal_place: 6
+
+# ── Environment ────────────────────────────────────────────────────────
+gpu_id: '0'
+use_gpu: True
+seed: 2020
+reproducibility: True
+state: INFO
+show_progress: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+log_wandb: False
+
+save_dataset: True
+dataset_save_path: 'dataset/kuairec/saved/'

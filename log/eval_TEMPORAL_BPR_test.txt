@@ -1,0 +1,14 @@
+BPR TEMPORAL (test, history 80% → eval 20%)
+==================================================
+Eval users: 1129
+History items: 1,679,459
+Eval positives: 404,153
+GAUC: 0.6389470853276241
+Recall@5: 0.1435523382198184
+NDCG@5: 0.08585258347555412
+Recall@10: 0.2501307458100987
+NDCG@10: 0.12005147585464986
+Recall@20: 0.3951175558208966
+NDCG@20: 0.1565094797077626
+eval_users: 1129
+user_stats: {'no_history': 0, 'no_pos': 0, 'no_neg': 0, 'valid': 1129}

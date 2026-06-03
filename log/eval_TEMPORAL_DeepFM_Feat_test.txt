@@ -1,0 +1,14 @@
+DeepFM_Feat TEMPORAL (test, history 80% → eval 20%)
+==================================================
+Eval users: 1129
+History items: 1,679,459
+Eval positives: 404,153
+GAUC: 0.7066980988383622
+Recall@5: 0.16363490182015653
+NDCG@5: 0.09648818751152287
+Recall@10: 0.2989402656015548
+NDCG@10: 0.13994048714292145
+Recall@20: 0.48247812249298255
+NDCG@20: 0.18625431205910561
+eval_users: 1129
+user_stats: {'no_history': 0, 'no_pos': 0, 'no_neg': 0, 'valid': 1129}

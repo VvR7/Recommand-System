@@ -1,0 +1,93 @@
+# =============================================================================
+# BERT4RecF (= BERT4Rec + Features) on KuaiRec — RecBole Config
+# =============================================================================
+# BERT4Rec with item feature side information. Item category features are
+# concatenated with item ID embeddings before the bidirectional Transformer.
+#
+# Aligned with BERT4Rec ID-only baseline for fair comparison:
+#   Same hidden_size=256, n_layers=2, n_heads=4, mask_ratio=0.2
+#
+# VRAM: ~8-10 GB (features add ~20% overhead vs BERT4Rec)
+# CPU RAM: >20 GB for SequentialDataset + features (server required!)
+
+# ── Dataset ────────────────────────────────────────────────────────────
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: video_id
+TIME_FIELD: timestamp
+LABEL_FIELD: ~
+
+load_col:
+  inter: [user_id, video_id, timestamp]
+  item: [video_id, first_level_category_id, second_level_category_id,
+         third_level_category_id]
+
+MAX_ITEM_LIST_LENGTH: 200
+ITEM_LIST_LENGTH_FIELD: item_length
+LIST_SUFFIX: _list
+POSITION_FIELD: position_id
+
+# ── BERT4RecF Model (BERT4Rec + features) ─────────────────────────────
+# Same transformer params as BERT4Rec ID-only
+n_layers: 2
+n_heads: 4
+hidden_size: 256
+inner_size: 1024
+hidden_dropout_prob: 0.5
+attn_dropout_prob: 0.5
+hidden_act: 'gelu'
+layer_norm_eps: 1e-12
+initializer_range: 0.02
+mask_ratio: 0.2
+loss_type: 'CE'
+
+# Feature injection (same pattern as SASRecF)
+selected_features: [first_level_category_id, second_level_category_id,
+                    third_level_category_id]
+pooling_mode: mean
+
+# BERT4Rec-specific placeholders
+MASK_ITEM_SEQ: mask_item_seq
+POS_ITEMS: pos_items
+NEG_ITEMS: neg_items
+MASK_INDEX: mask_index
+transform: mask_itemseq
+
+# ── Training ───────────────────────────────────────────────────────────
+epochs: 100
+train_batch_size: 1             # Conservative: features + Transformer = more VRAM
+eval_batch_size: 1
+learner: adam
+learning_rate: 0.001
+weight_decay: 0.0
+eval_step: 1
+stopping_step: 20
+enable_amp: True
+enable_scaler: True
+train_neg_sample_args: ~
+
+# ── Evaluation ─────────────────────────────────────────────────────────
+eval_args:
+  split: {'RS': [0.8, 0.1, 0.1]}
+  group_by: user
+  order: 'TO'
+  mode: full
+
+metrics: ['GAUC']
+topk: [10]
+valid_metric: GAUC
+valid_metric_bigger: True
+metric_decimal_place: 6
+
+# ── Environment ────────────────────────────────────────────────────────
+gpu_id: '0'
+use_gpu: True
+seed: 2020
+reproducibility: True
+state: INFO
+show_progress: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+log_wandb: False
+
+save_dataset: True
+dataset_save_path: 'dataset/kuairec/saved/'

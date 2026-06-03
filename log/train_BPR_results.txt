@@ -1,0 +1,7 @@
+BPR on KuaiRec — Training Summary
+==================================================
+Completed:   2026-05-31 19:16:00
+Total time:  0.23h (13.8min)
+Best valid:  0.5773169994354248
+Best result: {'gauc': 0.577317, 'recall@5': 0.011104, 'recall@10': 0.019195, 'recall@20': 0.032452, 'ndcg@5': 0.208556, 'ndcg@10': 0.187252, 'ndcg@20': 0.163966}
+Test result: {'gauc': 0.442267, 'recall@5': 0.007732, 'recall@10': 0.013423, 'recall@20': 0.021984, 'ndcg@5': 0.161669, 'ndcg@10': 0.143897, 'ndcg@20': 0.123297}

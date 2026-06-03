@@ -1,0 +1,76 @@
+# =============================================================================
+# DeepFM + Item Features on KuaiRec — RecBole Config
+# =============================================================================
+# DeepFM with item category features (3-level hierarchy) and user profile features.
+# Same architecture as ID-only DeepFM but with richer feature inputs.
+#
+# Item features (Tier 1): first/second/third_level_category_id
+# User features: active_degree, streamer/author status, follow/fans friend counts,
+#                 register days, 3 anonymous onehot features
+#
+# VRAM: <2 GB (Dataset type, not SequentialDataset)
+# Hardware: runs comfortably on local 8GB GPU
+
+# ── Dataset ────────────────────────────────────────────────────────────
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: video_id
+TIME_FIELD: timestamp
+LABEL_FIELD: rating
+
+load_col:
+  inter: [user_id, video_id, timestamp, rating]
+  user: [user_id, user_active_degree, is_lowactive_period, is_live_streamer,
+         is_video_author, follow_user_num_range, fans_user_num_range,
+         friend_user_num_range, register_days_range,
+         onehot_feat0, onehot_feat1, onehot_feat2]
+  item: [video_id, first_level_category_id, second_level_category_id,
+         third_level_category_id]
+
+# ── DeepFM Model ────────────────────────────────────────────────────────
+embedding_size: 256
+mlp_hidden_size: [256, 128, 64]
+dropout_prob: 0.3
+double_tower: False
+numerical_features: []
+
+# ── Training ───────────────────────────────────────────────────────────
+epochs: 50
+train_batch_size: 4096
+eval_batch_size: 4096
+learner: adam
+learning_rate: 0.001
+weight_decay: 0.0
+eval_step: 0                              # Skip internal eval (labeled mode broken)
+stopping_step: 50
+
+# Negative sampling for BCE loss
+train_neg_sample_args:
+  distribution: uniform
+  sample_num: 1
+
+# ── Evaluation ─────────────────────────────────────────────────────────
+eval_args:
+  split: {'RS': [0.8, 0.1, 0.1]}
+  group_by: user
+  order: 'TO'
+  mode: labeled
+
+metrics: ['AUC']
+topk: [10]
+valid_metric: AUC
+valid_metric_bigger: True
+metric_decimal_place: 6
+
+# ── Environment ────────────────────────────────────────────────────────
+gpu_id: '0'
+use_gpu: True
+seed: 2020
+reproducibility: True
+state: INFO
+show_progress: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+log_wandb: False
+
+save_dataset: True
+dataset_save_path: 'dataset/kuairec/saved/'

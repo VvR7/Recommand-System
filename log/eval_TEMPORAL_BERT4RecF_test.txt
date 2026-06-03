@@ -1,0 +1,14 @@
+BERT4RecF TEMPORAL (test, history 80% → eval 20%)
+==================================================
+Eval users: 1129
+History items: 1,679,459
+Eval positives: 404,153
+GAUC: 0.7963318764915489
+Recall@5: 0.3422280066283727
+NDCG@5: 0.23373106453206613
+Recall@10: 0.4790108360251214
+NDCG@10: 0.2778630801473334
+Recall@20: 0.6366757542159766
+NDCG@20: 0.31766633440315545
+eval_users: 1129
+user_stats: {'no_history': 0, 'no_pos': 0, 'no_neg': 0, 'valid': 1129}

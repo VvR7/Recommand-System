@@ -1,0 +1,7 @@
+ItemKNN on KuaiRec — Training Summary
+==================================================
+Completed:   2026-05-31 19:00:29
+Total time:  0.02h (1.1min)
+Best valid:  0.5232229828834534
+Best result: {'gauc': 0.523223, 'recall@5': 0.003937, 'recall@10': 0.007521, 'recall@20': 0.014581, 'ndcg@5': 0.07513, 'ndcg@10': 0.07331, 'ndcg@20': 0.070584}
+Test result: {'gauc': 0.381708, 'recall@5': 0.0021, 'recall@10': 0.004239, 'recall@20': 0.007932, 'ndcg@5': 0.038862, 'ndcg@10': 0.038236, 'ndcg@20': 0.036764}

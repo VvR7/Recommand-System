@@ -1,0 +1,81 @@
+# =============================================================================
+# BERT4Rec on KuaiRec — RecBole Configuration
+# =============================================================================
+# Per 实验计划.md Sections 2.2 & 2.3
+#
+# Hardware: GPU VRAM budget 40GB (actual usage ~6-10 GB with these settings)
+#           CPU RAM ≥ 32GB recommended for data preparation
+# Dataset:  5,765 users, 3,309 items, 4.2M interactions (after preprocessing)
+
+# ── Dataset ────────────────────────────────────────────────────────────
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: video_id
+TIME_FIELD: timestamp
+LABEL_FIELD: ~                      # BERT4Rec uses Cloze task, no label needed
+
+load_col:
+  inter: [user_id, video_id, timestamp]
+
+# Sequential recommendation
+MAX_ITEM_LIST_LENGTH: 200           # Max items per user sequence
+ITEM_LIST_LENGTH_FIELD: item_length
+LIST_SUFFIX: _list
+POSITION_FIELD: position_id
+
+# ── BERT4Rec Model ─────────────────────────────────────────────────────
+# Per 实验计划.md Section 2.2
+n_layers: 2
+n_heads: 4
+hidden_size: 256
+inner_size: 1024                    # 4× hidden_size (standard BERT)
+hidden_dropout_prob: 0.5
+attn_dropout_prob: 0.5
+hidden_act: 'gelu'
+layer_norm_eps: 1e-12
+initializer_range: 0.02
+mask_ratio: 0.2                     # 20% items randomly masked (Cloze task)
+loss_type: 'CE'                     # Cross-entropy over all items
+transform: mask_itemseq
+
+# ── Training (VRAM budget: 40GB; actual usage ~6-10 GB) ───────────────
+epochs: 100                        # BERT4Rec usually converges by epoch 30-60
+train_batch_size: 4096              # ~50 GB VRAM (comfortable on 80GB)
+eval_batch_size: 4096
+learner: adam
+learning_rate: 0.001
+weight_decay: 0.0
+eval_step: 1                        # Evaluate every epoch
+stopping_step: 20                   # Early stop if no GAUC gain in 20 evals
+clip_grad_norm: ~
+enable_amp: True                    # Mixed precision → ~40% VRAM reduction
+enable_scaler: True
+train_neg_sample_args: ~            # Must be ~ for CE loss
+
+# ── Evaluation ─────────────────────────────────────────────────────────
+# labeled mode NOT compatible with RecBole 1.2.1 BERT4Rec → use full + GAUC
+eval_args:
+  split: {'RS': [0.8, 0.1, 0.1]}    # 80% train / 10% val / 10% test (from big_matrix)
+  group_by: user
+  order: 'TO'
+  mode: full                         # full_sort_predict; custom eval on small_matrix in evaluate.py
+
+metrics: ['GAUC']                    # Value metric for checkpoint selection
+topk: [10]
+valid_metric: GAUC                   # Per plan Section 4.1
+valid_metric_bigger: True
+metric_decimal_place: 6
+
+# ── Environment ────────────────────────────────────────────────────────
+gpu_id: '0'
+use_gpu: True
+seed: 2020
+reproducibility: True
+state: INFO
+show_progress: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+log_wandb: False
+
+# Caching: first run saves prepared dataset, subsequent runs load instantly
+save_dataset: True
+dataset_save_path: 'dataset/kuairec/saved/'

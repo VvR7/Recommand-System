@@ -1,0 +1,7 @@
+DeepFM on KuaiRec — Training Summary
+==================================================
+Completed:   2026-06-01 20:26:08
+Total time:  0.79h (47.3min)
+Best valid:  -inf
+Best result: {}
+Test result: {'auc': nan}
