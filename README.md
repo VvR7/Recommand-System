@@ -157,43 +157,44 @@ CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecF --config configs/sasre
 ```
 
 ### SASRecP（主实验，服务器）
+如果`--config_dict `报错，就删去`--config_dict`，去yaml文件改config
 
 ```bash
 # 全开（三个模块都启用）
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP --config configs/sasrecp_kuairec.yaml
+python train_cf.py --model SASRecP --config configs/sasrecp_kuairec.yaml
 
 # 基线（等价于 SASRecF，验证无退化）
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP \
+python train_cf.py --model SASRecP \
     --config configs/sasrecp_kuairec.yaml \
     --config_dict '{"use_rope":false,"use_time_bias":false,"use_contra_loss":false}'
 
 # 仅 RoPE
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP \
+python train_cf.py --model SASRecP \
     --config configs/sasrecp_kuairec.yaml \
     --config_dict '{"use_rope":true,"use_time_bias":false,"use_contra_loss":false}'
 
 # 仅 TimeBias
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP \
+python train_cf.py --model SASRecP \
     --config configs/sasrecp_kuairec.yaml \
     --config_dict '{"use_rope":false,"use_time_bias":true,"use_contra_loss":false}'
 
 # 仅 Contrastive
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP \
+python train_cf.py --model SASRecP \
     --config configs/sasrecp_kuairec.yaml \
     --config_dict '{"use_rope":false,"use_time_bias":false,"use_contra_loss":true}'
 
 # RoPE + TimeBias
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP \
+python train_cf.py --model SASRecP \
     --config configs/sasrecp_kuairec.yaml \
     --config_dict '{"use_rope":true,"use_time_bias":true,"use_contra_loss":false}'
 
 # RoPE + Contrastive
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP \
+python train_cf.py --model SASRecP \
     --config configs/sasrecp_kuairec.yaml \
     --config_dict '{"use_rope":true,"use_time_bias":false,"use_contra_loss":true}'
 
 # TimeBias + Contrastive
-CUDA_VISIBLE_DEVICES=X python train_cf.py --model SASRecP \
+python train_cf.py --model SASRecP \
     --config configs/sasrecp_kuairec.yaml \
     --config_dict '{"use_rope":false,"use_time_bias":true,"use_contra_loss":true}'
 ```
@@ -238,12 +239,11 @@ RecommandSystem/
 ├── log/                      # 训练/评测日志
 ├── saved/                    # 模型 checkpoint
 ├── result/                   # 评测结果
-├── id_only_baseline/         # 归档：旧版 ID-only 脚本
 ├── train_cf.py               # 统一训练入口
 ├── evaluate_temporal.py      # 时序留一法评测
 ├── preprocess_features.py    # .user / .item 生成
-├── 当前完成情况.md
-└── 实验计划.md
+├── 当前完成情况.md            # 和ai交互时维护的文档
+└── 实验计划.md                # 和ai交互时维护的文档
 ```
 
 
